@@ -1,4 +1,4 @@
-'''
+"""
 BSD 3-Clause License
 
 Copyright (c) 2023, Shawn Armstrong
@@ -27,7 +27,8 @@ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-'''
+"""
+
 import argparse
 import socket
 import sys
@@ -37,9 +38,25 @@ from package_writer import PackageWriter
 
 # Parse command-line arguments
 parser = argparse.ArgumentParser(description="Client for receiving robot data")
-parser.add_argument("-i", "--ip_address", default=socket.gethostbyname(socket.gethostname()), help="IP address of the robot (default: local IP address)")
-parser.add_argument("-m", "--max_reports", type=int, default=10, help="Maximum number of reports to write (default: 10)")
-parser.add_argument("-c", "--custom_report", action="store_true", help="Generate custom report based on watch_list.txt")
+parser.add_argument(
+    "-i",
+    "--ip_address",
+    default=socket.gethostbyname(socket.gethostname()),
+    help="IP address of the robot (default: local IP address)",
+)
+parser.add_argument(
+    "-m",
+    "--max_reports",
+    type=int,
+    default=10,
+    help="Maximum number of reports to write (default: 10)",
+)
+parser.add_argument(
+    "-c",
+    "--custom_report",
+    action="store_true",
+    help="Generate custom report based on watch_list.txt",
+)
 args = parser.parse_args()
 
 if args.custom_report:
@@ -47,11 +64,11 @@ if args.custom_report:
         print("Error: watch_list.txt not found.")
         sys.exit(1)
 
-HOST = args.ip_address
+HOST = "localhost"
 PORT = 30001
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as clientSocket:
-    
+
     clientSocket.settimeout(4)
     try:
         clientSocket.connect((HOST, PORT))
@@ -63,9 +80,11 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as clientSocket:
         sys.exit(1)
 
     writer = PackageWriter(args.max_reports, args.custom_report)
-
+    f = open("F:/Py program/VSCode/Test_send_program_to_UR/test.script", "rb")
+    l = f.read(4096)
+    clientSocket.sendall(l)
     while True:
-        
+
         # Receives message from UR controller.
         new_message = clientSocket.recv(4096)
 
@@ -83,17 +102,3 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as clientSocket:
         # subpackage = new_package.get_subpackage("Robot Mode Data")
         # if subpackage is not None:
         #     print(f"subpackage.subpackage_variables.timestamp={subpackage.subpackage_variables.timestamp}")
-
-        
-
-        
-        
-
-            
-        
-    
-
-
-
-
-
